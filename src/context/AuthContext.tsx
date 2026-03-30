@@ -9,7 +9,7 @@ import {
   User as FirebaseUser
 } from "firebase/auth";
 import { getDoc, doc } from "firebase/firestore";
-import { auth, db } from "@/lib/firebase";
+import { auth, db, isConfigured } from "@/lib/firebase";
 
 type Role = "student" | "volunteer" | "admin" | null;
 
@@ -35,6 +35,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!isConfigured) {
+      setLoading(false);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         // Fetch user role from Firestore
