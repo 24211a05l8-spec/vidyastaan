@@ -15,41 +15,24 @@ interface ClaudeOptions {
 }
 
 export async function callClaude(prompt: string, options: ClaudeOptions = {}) {
-  const apiKey = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
-  
-  if (!apiKey) {
-    console.error("ANTHROPIC_API_KEY is missing");
-    return "AI service is currently unavailable. Please try again later.";
-  }
-
   try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "dangerously-allow-browser": "true" // In production, this should be handled via a backend API route
+        "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model: options.model || "claude-3-5-sonnet-20240620",
-        max_tokens: options.max_tokens || 1024,
-        temperature: options.temperature || 0.7,
-        messages: [
-          { role: "user", content: prompt }
-        ]
-      })
+      body: JSON.stringify({ prompt })
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error?.message || "Failed to call Claude API");
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || "Failed to call AI API");
     }
 
     const data = await response.json();
-    return data.content[0].text;
+    return data.reply || "I couldn't process that. Please try again.";
   } catch (error) {
-    console.error("Claude API Error:", error);
+    console.error("AI API Error:", error);
     return "I'm having trouble thinking right now. Please try again in a moment.";
   }
 }

@@ -36,12 +36,21 @@ const adminNav = [
   { name: "Analytics", href: "/dashboard/admin/analytics", icon: Home },
 ];
 
-export default function Sidebar({ role }: { role: "student" | "volunteer" | "admin" }) {
+const ngoNav = [
+  { name: "Overview", href: "/ngo-dashboard", icon: Home },
+  { name: "Students", href: "/ngo-dashboard/students", icon: Home },
+  { name: "Volunteers", href: "/ngo-dashboard/volunteers", icon: Home },
+  { name: "Match Making", href: "/ngo-dashboard/advanced-matching", icon: Award },
+  { name: "Sessions", href: "/ngo-dashboard/sessions", icon: Calendar },
+  { name: "Announcements", href: "/ngo-dashboard/announcements", icon: Bot },
+];
+
+export default function Sidebar({ role }: { role: "student" | "volunteer" | "admin" | "ngo" }) {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const { logout, user } = useAuth();
 
-  const navItems = role === "student" ? studentNav : role === "volunteer" ? volunteerNav : adminNav;
+  const navItems = role === "student" ? studentNav : role === "volunteer" ? volunteerNav : role === "admin" ? adminNav : ngoNav;
 
   return (
     <>
