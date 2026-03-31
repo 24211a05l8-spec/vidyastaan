@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -10,27 +10,40 @@ import toast from "react-hot-toast";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { login, user, loading: authLoading } = useAuth();
   const router = useRouter();
+
+  // If already logged in, redirect immediately
+  useEffect(() => {
+    if (user && !authLoading) {
+      router.push(`/dashboard/${user.role || "student"}`);
+    }
+  }, [user, authLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
+    setIsSubmitting(true);
 
     try {
       await login(email, password);
+      toast.success("Welcome back! Redirecting to your dashboard...");
+      // The user effect will handle the redirect once auth state updates
+    } catch (error: any) {
+      console.error("Login error:", error);
+      const errorMessage = error?.code === "auth/user-not-found" 
+        ? "Email not found. Please register first."
+        : error?.code === "auth/wrong-password"
+        ? "Incorrect password. Please try again."
+        : error?.code === "auth/invalid-email"
+        ? "Invalid email format."
+        : error?.code === "auth/too-many-requests"
+        ? "Too many login attempts. Please try again later."
+        : "Failed to login. Please check your credentials.";
       
-      // Determine role from email for demo/testing purposes
-      let role: "student" | "volunteer" = "student";
-      if (email.includes("volunteer")) role = "volunteer";
-
-      toast.success(`Welcome back! Accessing ${role} portal...`);
-      router.push(`/dashboard/${role}`);
-    } catch (error) {
-      toast.error("Failed to login. Please check your credentials.");
+      toast.error(errorMessage);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -122,10 +135,10 @@ export default function LoginPage() {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isSubmitting}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-primary hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
-                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign in"}
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign in"}
               </button>
             </div>
           </form>

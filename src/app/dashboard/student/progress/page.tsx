@@ -59,10 +59,6 @@ export default function StudentProgressPage() {
     }
 
     fetchProgress();
-    
-    // Auto-refresh every 3 seconds to catch quiz completions
-    const interval = setInterval(fetchProgress, 3000);
-    return () => clearInterval(interval);
   }, [user]);
 
   if (loading) {

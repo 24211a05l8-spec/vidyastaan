@@ -31,7 +31,6 @@ export default function ProgressTracker() {
   const { user } = useAuth();
   const [progressData, setProgressData] = useState<ProgressData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -48,11 +47,7 @@ export default function ProgressTracker() {
     }
 
     fetchProgress();
-    
-    // Refresh every 5 seconds to catch updates from quizzes
-    const interval = setInterval(fetchProgress, 5000);
-    return () => clearInterval(interval);
-  }, [user, refreshKey]);
+  }, [user]);
 
   if (loading || !progressData) {
     return (

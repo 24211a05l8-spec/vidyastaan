@@ -61,10 +61,6 @@ export default function ResourcesPage() {
       setLoading(false);
     }
     load();
-    
-    // Refresh progress every 2 seconds to catch quiz completions
-    const interval = setInterval(load, 2000);
-    return () => clearInterval(interval);
   }, [user]);
 
   const handleStartLearning = async (chapter: any) => {
